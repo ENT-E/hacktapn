@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Html5Qrcode } from 'html5-qrcode';
 import { 
   Box, Hammer, Link as ChainIcon, Sparkles, 
   Gem, ShieldCheck, MapPin, Cpu, LayoutDashboard, Search
@@ -98,42 +99,58 @@ const ProductionView = ({ data }) => (
 );
 
 // 3. TRAZABILIDAD (BLOCKCHAIN)
-const TraceabilityView = () => (
-  <div className="max-w-4xl mx-auto animate-in zoom-in-95 duration-500">
-    <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden">
-      <div className="bg-slate-900 p-8 text-white flex justify-between items-center">
-        <div>
-          <p className="text-amber-400 text-[10px] font-bold uppercase tracking-widest mb-1">Registro RFID Único</p>
-          <h3 className="text-2xl font-mono tracking-tighter">#BGA-RFID-9982-2024</h3>
+const TraceabilityView = () => {
+  const [scanning, setScanning] = useState(false);
+  const [result, setResult] = useState("");
+
+  const startScanner = () => {
+    setScanning(true);
+
+    const html5QrCode = new Html5Qrcode("qr-reader");
+
+    html5QrCode.start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: 250,
+      },
+      (decodedText) => {
+        setResult(decodedText);
+        html5QrCode.stop();
+        setScanning(false);
+      },
+      (error) => {}
+    );
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6 animate-in zoom-in-95 duration-500">
+
+      {/* BOTÓN */}
+      <button
+        onClick={startScanner}
+        className="px-6 py-3 bg-amber-500 text-white rounded-xl font-bold"
+      >
+        Escanear QR
+      </button>
+
+      {/* CÁMARA */}
+      {scanning && (
+        <div
+          id="qr-reader"
+          className="w-full max-w-md mx-auto border rounded-xl overflow-hidden"
+        />
+      )}
+
+      {/* RESULTADO */}
+      {result && (
+        <div className="bg-slate-900 text-amber-400 p-4 rounded-xl font-mono text-sm break-all">
+          Resultado: {result}
         </div>
-        <div className="flex flex-col items-end">
-          <span className="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold border border-emerald-500/30 flex items-center gap-2">
-            <ShieldCheck size={14}/> BLOCKCHAIN VERIFIED
-          </span>
-        </div>
-      </div>
-      <div className="p-10 space-y-8">
-        <div className="grid grid-cols-3 gap-6">
-          <div className="text-center p-4 bg-slate-50 rounded-xl">
-            <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Pureza</p>
-            <p className="text-lg font-bold">18K (750)</p>
-          </div>
-          <div className="text-center p-4 bg-slate-50 rounded-xl border border-amber-100">
-            <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Estado</p>
-            <p className="text-lg font-bold text-amber-600">Pulido</p>
-          </div>
-          <div className="text-center p-4 bg-slate-50 rounded-xl">
-            <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Peso</p>
-            <p className="text-lg font-bold">0.85 Ct</p>
-          </div>
-        </div>
-        <div className="bg-slate-900 rounded-xl p-4 font-mono text-[10px] text-amber-400/60 break-all text-center">
-          0x71C94B2d5592887320963F33A24873959123984723984723948723498273492837492
-        </div>
-      </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 // 4. DISEÑOS IA
 const AIDesignView = () => (
