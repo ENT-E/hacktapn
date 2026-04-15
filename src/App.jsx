@@ -103,32 +103,30 @@ const TraceabilityView = () => {
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState(null);
 
-  const startScanner = () => {
-    setScanning(true);
+  const startScanner = async () => {
+  setScanning(true);
 
-    const html5QrCode = new Html5Qrcode("qr-reader");
+  const html5QrCode = new Html5Qrcode("qr-reader");
 
-    html5QrCode.start(
-      { facingMode: "environment" },
-      {
-        fps: 10,
-        qrbox: 250,
-      },
-      (decodedText) => {
-  try {
-    const parsed = JSON.parse(decodedText);
-    setResult(parsed);
-  } catch (err) {
-    console.error("QR inválido", err);
-    setResult({ error: "Formato inválido" });
-  }
+  await html5QrCode.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    async (decodedText) => {
+      try {
+        const parsed = JSON.parse(decodedText);
+        console.log("QR leído:", parsed);
 
-  html5QrCode.stop();
-  setScanning(false);
-},
-      //(error) => {}
-    );
-  };
+        setResult(parsed);
+      } catch (err) {
+        setResult({ error: "Formato inválido" });
+      }
+
+      await html5QrCode.stop();
+      await html5QrCode.clear();
+      setScanning(false);
+    }
+  );
+};
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in zoom-in-95 duration-500">
