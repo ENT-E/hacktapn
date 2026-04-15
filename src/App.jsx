@@ -115,7 +115,8 @@ const TraceabilityView = () => {
       try {
         const parsed = JSON.parse(decodedText);
         console.log("QR leído:", parsed);
-
+        
+        setResult(null); // limpia primero
         setResult(parsed);
       } catch (err) {
         setResult({ error: "Formato inválido" });
