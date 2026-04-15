@@ -101,7 +101,7 @@ const ProductionView = ({ data }) => (
 // 3. TRAZABILIDAD (BLOCKCHAIN)
 const TraceabilityView = () => {
   const [scanning, setScanning] = useState(false);
-  const [result, setResult] = useState("");
+  const [result, setResult] = useState(null);
 
   const startScanner = () => {
     setScanning(true);
@@ -115,11 +115,18 @@ const TraceabilityView = () => {
         qrbox: 250,
       },
       (decodedText) => {
-        setResult(decodedText);
-        html5QrCode.stop();
-        setScanning(false);
-      },
-      (error) => {}
+  try {
+    const parsed = JSON.parse(decodedText);
+    setResult(parsed);
+  } catch (err) {
+    console.error("QR inválido", err);
+    setResult({ error: "Formato inválido" });
+  }
+
+  html5QrCode.stop();
+  setScanning(false);
+},
+      //(error) => {}
     );
   };
 
@@ -143,11 +150,40 @@ const TraceabilityView = () => {
       )}
 
       {/* RESULTADO */}
-      {result && (
-        <div className="bg-slate-900 text-amber-400 p-4 rounded-xl font-mono text-sm break-all">
-          Resultado: {result}
-        </div>
-      )}
+      {result && !result.error && (
+  <div className="bg-white rounded-2xl border shadow-md overflow-hidden">
+    
+    <div className="bg-slate-900 text-white p-4 font-bold">
+      Información del Material
+    </div>
+
+    <table className="w-full text-sm">
+      <tbody>
+        <tr className="border-b">
+          <td className="p-3 font-bold text-slate-500">ID</td>
+          <td className="p-3 font-mono text-xs">{result.id}</td>
+        </tr>
+        <tr className="border-b">
+          <td className="p-3 font-bold text-slate-500">Tipo</td>
+          <td className="p-3 capitalize">{result.type}</td>
+        </tr>
+        <tr className="border-b">
+          <td className="p-3 font-bold text-slate-500">Peso</td>
+          <td className="p-3">{result.weight} mg</td>
+        </tr>
+        <tr>
+          <td className="p-3 font-bold text-slate-500">Origen</td>
+          <td className="p-3">{result.origin}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+)}
+{result?.error && (
+  <div className="bg-red-100 text-red-600 p-4 rounded-xl font-bold">
+    QR inválido
+  </div>
+)}
     </div>
   );
 };
