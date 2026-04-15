@@ -184,6 +184,12 @@ const TraceabilityView = () => {
     QR inválido
   </div>
 )}
+<button
+  onClick={startScanner}
+  className="mt-4 px-4 py-2 bg-slate-900 text-white rounded"
+>
+  Escanear otro QR
+</button>
     </div>
   );
 };
